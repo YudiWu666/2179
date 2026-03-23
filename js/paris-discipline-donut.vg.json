@@ -1,0 +1,101 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": ["Paris 2024 Medal Share", "by Discipline"],
+    "subtitle": "Click a slice to highlight across charts · click again to reset"
+  },
+  "width": "container",
+  "height": 320,
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {
+      "calculate": "indexof(['Swimming', 'Cycling Track', 'Water Polo', 'Basketball', 'Athletics', 'Canoe Sprint'], datum.discipline) >= 0 ? datum.discipline : 'Other'",
+      "as": "disc_group"
+    },
+    {
+      "aggregate": [{"op": "count", "as": "count"}],
+      "groupby": ["disc_group"]
+    },
+    {
+      "joinaggregate": [{"op": "sum", "field": "count", "as": "total"}]
+    },
+    {
+      "calculate": "round(datum.count / datum.total * 1000) / 10 + '%'",
+      "as": "pct_label"
+    }
+  ],
+  "config": {
+    "view": {"stroke": "transparent"}
+  },
+  "layer": [
+    {
+      "params": [{"name": "disc_select", "select": {"type": "point", "fields": ["disc_group"]}}],
+      "mark": {
+        "type": "arc",
+        "innerRadius": 70,
+        "outerRadius": 140,
+        "padAngle": 0.025,
+        "cornerRadius": 3,
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "theta": {
+          "field": "count",
+          "type": "quantitative",
+          "sort": "descending"
+        },
+        "color": {
+          "field": "disc_group",
+          "type": "nominal",
+          "title": "Discipline",
+          "sort": {"field": "count", "order": "descending"},
+          "scale": {
+            "domain": ["Swimming", "Cycling Track", "Water Polo", "Basketball", "Athletics", "Canoe Sprint", "Other"],
+            "range": ["#0081C8", "#FCB131", "#9B59B6", "#00BCD4", "#E67E22", "#EC407A", "#ABABAB"]
+          },
+          "legend": {"orient": "right", "labelFontSize": 12}
+        },
+        "opacity": {
+          "condition": {"param": "disc_select", "value": 1},
+          "value": 0.2
+        },
+        "tooltip": [
+          {"field": "disc_group", "type": "nominal", "title": "Discipline"},
+          {"field": "count", "type": "quantitative", "title": "Medal Instances"},
+          {"field": "pct_label", "type": "nominal", "title": "Share"}
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "color": "#001845",
+        "align": "center",
+        "baseline": "middle"
+      },
+      "encoding": {
+        "text": {"aggregate": "sum", "field": "count", "type": "quantitative"},
+        "radius": {"value": 0}
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "fontSize": 11,
+        "color": "#888",
+        "align": "center",
+        "baseline": "middle",
+        "dy": 22
+      },
+      "encoding": {
+        "text": {"value": "medal instances"},
+        "radius": {"value": 0}
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Paris 2024: Medals Per Capita",
+    "subtitle": "Colour = medals per million people · Australia outlined in gold · hover for detail"
+  },
+  "width": "container",
+  "height": 540,
+  "view": {"stroke": null},
+  "projection": {"type": "naturalEarth1"},
+  "layer": [
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/2_symbol_map/js/ne_110m_admin_0_countries.topojson",
+        "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
+      },
+      "mark": {
+        "type": "geoshape",
+        "fill": "#e8e4de",
+        "stroke": "white",
+        "strokeWidth": 0.5
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/2_symbol_map/js/ne_110m_admin_0_countries.topojson",
+        "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
+      },
+      "transform": [
+        {
+          "lookup": "properties.ADM0_A3",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medals_total.csv"
+            },
+            "key": "country_code",
+            "fields": ["country", "Gold Medal", "Silver Medal", "Bronze Medal", "Total", "country_code"]
+          }
+        },
+        {
+          "lookup": "country_code",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/KeithGalli/Olympics-Dataset/refs/heads/master/clean-data/populations.csv"
+            },
+            "key": "Country Code",
+            "fields": ["2023"]
+          }
+        },
+        {"filter": "datum.Total != null && datum['2023'] != null"},
+        {
+          "calculate": "datum.Total / datum['2023'] * 1000000",
+          "as": "per_million"
+        }
+      ],
+      "mark": {"type": "geoshape", "stroke": "white", "strokeWidth": 0.5},
+      "encoding": {
+        "color": {
+          "field": "per_million",
+          "type": "quantitative",
+          "title": "Medals per million",
+          "scale": {"range": ["#fff3cc", "#FCB131", "#b86e00"]},
+          "legend": {
+            "orient": "bottom-right",
+            "gradientLength": 100,
+            "labelFontSize": 11
+          }
+        },
+        "tooltip": [
+          {"field": "country", "type": "nominal", "title": "Country"},
+          {"field": "Total", "type": "quantitative", "title": "Total medals"},
+          {"field": "Gold Medal", "type": "quantitative", "title": "Gold"},
+          {"field": "Silver Medal", "type": "quantitative", "title": "Silver"},
+          {"field": "Bronze Medal", "type": "quantitative", "title": "Bronze"},
+          {
+            "field": "per_million",
+            "type": "quantitative",
+            "title": "Per million people",
+            "format": ".2f"
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/2_symbol_map/js/ne_110m_admin_0_countries.topojson",
+        "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
+      },
+      "transform": [
+        {"filter": "datum.properties.ADM0_A3 == 'AUS'"}
+      ],
+      "mark": {
+        "type": "geoshape",
+        "fill": null,
+        "stroke": "#FCB131",
+        "strokeWidth": 3
+      }
+    }
+  ]
+}

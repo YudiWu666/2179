@@ -1,0 +1,89 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": ["The Race to 53", "How Australia's Paris Medals Piled Up"],
+    "subtitle": "Cumulative medals across the fortnight, stacked by type · hover any point for the running tally"
+  },
+  "width": "container",
+  "height": 380,
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {
+      "aggregate": [{"op": "count", "as": "athletes"}],
+      "groupby": ["medal_date", "medal_type", "discipline", "event"]
+    },
+    {
+      "aggregate": [{"op": "count", "as": "day_count"}],
+      "groupby": ["medal_date", "medal_type"]
+    },
+    {
+      "impute": "day_count",
+      "key": "medal_date",
+      "value": 0,
+      "groupby": ["medal_type"]
+    },
+    {
+      "calculate": "datum.medal_type == 'Gold Medal' ? 0 : datum.medal_type == 'Silver Medal' ? 1 : 2",
+      "as": "medal_order"
+    },
+    {
+      "window": [{"op": "sum", "field": "day_count", "as": "cumulative"}],
+      "sort": [{"field": "medal_date", "order": "ascending"}],
+      "groupby": ["medal_type"],
+      "frame": [null, 0]
+    }
+  ],
+  "layer": [
+    {
+      "mark": {"type": "area", "interpolate": "step-after", "line": {"strokeWidth": 1}, "opacity": 0.9},
+      "encoding": {
+        "x": {
+          "field": "medal_date",
+          "type": "temporal",
+          "title": "Date · Paris 2024",
+          "axis": {"format": "%b %d", "labelAngle": -30, "grid": false, "tickCount": 8}
+        },
+        "y": {
+          "field": "cumulative",
+          "type": "quantitative",
+          "title": "Cumulative medals",
+          "stack": "zero",
+          "axis": {"grid": true, "gridColor": "#f0ede8"}
+        },
+        "color": {
+          "field": "medal_type",
+          "type": "nominal",
+          "title": null,
+          "scale": {
+            "domain": ["Gold Medal", "Silver Medal", "Bronze Medal"],
+            "range": ["#FCB131", "#ABABAB", "#CD7F32"]
+          },
+          "legend": {"orient": "top", "direction": "horizontal", "labelFontSize": 12, "symbolType": "square"}
+        },
+        "order": {"field": "medal_order", "type": "quantitative"},
+        "tooltip": [
+          {"field": "medal_date", "type": "temporal", "title": "Date", "format": "%b %d"},
+          {"field": "medal_type", "type": "nominal", "title": "Medal type"},
+          {"field": "cumulative", "type": "quantitative", "title": "Running total (this type)"}
+        ]
+      }
+    },
+    {
+      "data": {"values": [{"target": 53}]},
+      "mark": {"type": "rule", "color": "#001233", "strokeDash": [5, 4], "opacity": 0.55},
+      "encoding": {"y": {"field": "target", "type": "quantitative"}}
+    },
+    {
+      "data": {"values": [{"target": 53, "label": "Final tally: 53 medals"}]},
+      "mark": {"type": "text", "align": "right", "baseline": "bottom", "dx": -4, "dy": -3, "fontSize": 11, "fontWeight": 600, "fill": "#001233"},
+      "encoding": {
+        "y": {"field": "target", "type": "quantitative"},
+        "x": {"value": "width"},
+        "text": {"field": "label", "type": "nominal"}
+      }
+    }
+  ]
+}

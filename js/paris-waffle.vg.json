@@ -1,0 +1,81 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Australia's 53 Medals: Paris 2024",
+    "subtitle": "Each square = one medal · grouped by discipline · hover for athlete detail"
+  },
+  "width": {"step": 46},
+  "height": {"step": 46},
+  "params": [
+    {"name": "external_disc", "value": null},
+    {"name": "medal_filter", "value": "All"}
+  ],
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {"filter": "medal_filter === 'All' || datum.medal_type === medal_filter"},
+    {
+      "calculate": "datum.discipline == 'Swimming' ? 'Swimming' : datum.discipline == 'Cycling Track' ? 'Cycling Track' : datum.discipline == 'Water Polo' ? 'Water Polo' : datum.discipline == 'Basketball' ? 'Basketball' : datum.discipline == 'Athletics' ? 'Athletics' : datum.discipline == 'Canoe Sprint' ? 'Canoe Sprint' : 'Other'",
+      "as": "disc_group"
+    },
+    {
+      "calculate": "datum.disc_group == 'Swimming' ? 0 : datum.disc_group == 'Cycling Track' ? 1 : datum.disc_group == 'Water Polo' ? 2 : datum.disc_group == 'Basketball' ? 3 : datum.disc_group == 'Athletics' ? 4 : datum.disc_group == 'Canoe Sprint' ? 5 : 6",
+      "as": "disc_order"
+    },
+    {
+      "window": [{"op": "row_number", "as": "medal_num"}],
+      "sort": [{"field": "disc_order", "order": "ascending"}]
+    },
+    {"calculate": "datum.medal_num - 1", "as": "medal_idx"},
+    {"calculate": "datum.medal_idx % 9", "as": "x_pos"},
+    {"calculate": "floor(datum.medal_idx / 9)", "as": "y_pos"}
+  ],
+  "mark": {
+    "type": "rect",
+    "stroke": "white",
+    "strokeWidth": 3,
+    "cornerRadius": 3
+  },
+  "encoding": {
+    "x": {
+      "field": "x_pos",
+      "type": "ordinal",
+      "axis": null
+    },
+    "y": {
+      "field": "y_pos",
+      "type": "ordinal",
+      "sort": "descending",
+      "axis": null
+    },
+    "color": {
+      "field": "disc_group",
+      "type": "nominal",
+      "title": "Discipline",
+      "scale": {
+        "domain": ["Swimming", "Cycling Track", "Water Polo", "Basketball", "Athletics", "Canoe Sprint", "Other"],
+        "range": ["#0081C8", "#FCB131", "#9B59B6", "#00BCD4", "#E67E22", "#EC407A", "#ABABAB"]
+      },
+      "legend": {
+        "orient": "right",
+        "labelFontSize": 11,
+        "titleFontSize": 12
+      }
+    },
+    "opacity": {
+      "condition": {
+        "test": "external_disc === null || datum.disc_group === external_disc",
+        "value": 1
+      },
+      "value": 0.1
+    },
+    "tooltip": [
+      {"field": "name", "type": "nominal", "title": "Athlete"},
+      {"field": "medal_type", "type": "nominal", "title": "Medal"},
+      {"field": "discipline", "type": "nominal", "title": "Discipline"},
+      {"field": "event", "type": "nominal", "title": "Event"}
+    ]
+  }
+}

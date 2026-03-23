@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Australia at the Olympics</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"></script>
+    <script>
+      (function () {
+        var _embed = vegaEmbed;
+        vegaEmbed = function (el, spec, opts) {
+          opts = Object.assign({}, opts);
+          opts.config = Object.assign(
+            {
+              background: "transparent",
+              font: "DM Sans",
+              title: {
+                fontSize: 28,
+                subtitleFontSize: 14,
+                font: "Playfair Display",
+                subtitleFont: "DM Sans",
+              },
+              axis: { labelFont: "DM Sans", titleFont: "DM Sans" },
+              legend: { labelFont: "DM Sans", titleFont: "DM Sans" },
+              header: { labelFont: "DM Sans", titleFont: "DM Sans" },
+              text: { font: "DM Sans" },
+            },
+            opts.config,
+          );
+          return _embed(el, spec, opts);
+        };
+      })();
+    </script>
+
+    <link rel="stylesheet" href="layout.css" />
+  </head>
+
+  <body>
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="hero-kicker">
+          <p class="hero-eyebrow">Data Visualisation · FIT2179</p>
+          <p class="hero-author">Yudi Wu · 36256048</p>
+        </div>
+        <h1>
+          <span>Australia at the</span>
+          <span class="olympics-word"
+            ><span class="rings-o" aria-label="O" role="img"
+              ><svg
+                viewBox="0 0 260 124"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="88"
+                  cy="82"
+                  r="42"
+                  fill="none"
+                  stroke="#FCB131"
+                  stroke-width="10"
+                />
+                <circle
+                  cx="172"
+                  cy="82"
+                  r="42"
+                  fill="none"
+                  stroke="#00A651"
+                  stroke-width="10"
+                />
+                <circle
+                  cx="46"
+                  cy="46"
+                  r="42"
+                  fill="none"
+                  stroke="#0081C8"
+                  stroke-width="10"
+                />
+                <circle
+                  cx="130"
+                  cy="46"
+                  r="42"
+                  fill="none"
+                  stroke="#2D2D2D"
+                  stroke-width="10"
+                />
+                <circle
+                  cx="214"
+                  cy="46"
+                  r="42"
+                  fill="none"
+                  stroke="#EE334E"
+                  stroke-width="10"
+                /></svg></span
+            >lympics</span
+          >
+        </h1>
+        <p class="hero-sub">Australia Punches Above Its Weight</p>
+        <p class="hero-desc">
+          A data-driven Olympic story showing how Australia turns a population
+          of 26 million into podium results across seasons, disciplines,
+          athletes, and more than a century of Olympic history.
+        </p>
+      </div>
+      <div class="hero-metrics" aria-label="Key Olympic statistics">
+        <div>
+          <strong>53</strong>
+          <span>Paris 2024 medals</span>
+        </div>
+        <div>
+          <strong>4th</strong>
+          <span>Overall in Paris</span>
+        </div>
+        <div>
+          <strong>26M</strong>
+          <span>People behind the haul</span>
+        </div>
+      </div>
+    </div>
+
+    <main class="container">
+      <script>
+        var chartViews = {};
+        var _selectedDisc = null;
+
+        function chartReady(name, view) {
+          chartViews[name] = view;
+          if (chartViews.donut && chartViews.waffle && chartViews.bar) {
+            chartViews.donut.addEventListener("click", function (event, item) {
+              var disc =
+                item && item.datum && item.datum.disc_group != null
+                  ? item.datum.disc_group
+                  : null;
+              _selectedDisc = disc === _selectedDisc ? null : disc;
+              chartViews.waffle.signal("external_disc", _selectedDisc).run();
+              chartViews.bar.signal("external_disc", _selectedDisc).run();
+            });
+          }
+        }
+      </script>
+
+      <!-- ── 1. GLOBAL CONTEXT ─────────────────────────────────────────── -->
+      <div class="card ring-blue">
+        <span class="section-label"
+          >Global Context · Paris 2024 &amp; Milano 2026</span
+        >
+        <h2>Small Country, Big Output</h2>
+        <p class="section-sub">
+          Efficiency vs volume: two maps, two ways Australia dominates.
+        </p>
+
+        <div class="game-toggle">
+          <button class="toggle-btn active" data-game="paris">
+            &#9728; Summer 2024 &middot; Paris
+          </button>
+          <button class="toggle-btn" data-game="milano">
+            &#10052; Winter 2026 &middot; Milano
+          </button>
+        </div>
+
+        <!-- Paris panel -->
+        <div id="game-paris" class="game-panel">
+          <p>
+            <span class="key-stat">53 medals</span> from 26 million people puts
+            Australia among the world's most efficient sporting nations. On
+            population-adjusted terms, Australia sits well clear of the USA,
+            China, and Great Britain, nations with far larger talent pools to
+            draw from.
+          </p>
+          <div class="stats-row">
+            <div class="stat-box gold">
+              <span class="stat-number">18</span
+              ><span class="stat-label">Gold</span>
+            </div>
+            <div class="stat-box silver">
+              <span class="stat-number">19</span
+              ><span class="stat-label">Silver</span>
+            </div>
+            <div class="stat-box bronze">
+              <span class="stat-number">16</span
+              ><span class="stat-label">Bronze</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number">53</span
+              ><span class="stat-label">Total Medals</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div id="paris_map"></div>
+          </div>
+        </div>
+
+        <!-- Milano panel -->
+        <div id="game-milano" class="game-panel" style="display: none">
+          <p>
+            All <span class="key-stat">6 medals</span> from Freestyle Skiing and
+            Snowboard, a <span class="key-stat">67% gold-strike rate</span>
+            in sports with no home-snow advantage.
+          </p>
+          <div class="stats-row">
+            <div class="stat-box gold">
+              <span class="stat-number">3</span
+              ><span class="stat-label">Gold</span>
+            </div>
+            <div class="stat-box silver">
+              <span class="stat-number">2</span
+              ><span class="stat-label">Silver</span>
+            </div>
+            <div class="stat-box bronze">
+              <span class="stat-number">1</span
+              ><span class="stat-label">Bronze</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number">14th</span
+              ><span class="stat-label">Overall Rank</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div id="milano_map"></div>
+          </div>
+        </div>
+
+        <script>
+          var milanoReady = false;
+
+          vegaEmbed("#paris_map", "js/paris-map.vg.json", {
+            renderer: "svg",
+          }).catch(console.error);
+
+          document.querySelectorAll(".toggle-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              document.querySelectorAll(".toggle-btn").forEach(function (b) {
+                b.classList.remove("active");
+              });
+              this.classList.add("active");
+              var game = this.dataset.game;
+              document.querySelectorAll(".game-panel").forEach(function (p) {
+                p.style.display = "none";
+              });
+              document.getElementById("game-" + game).style.display = "block";
+              if (game === "milano" && !milanoReady) {
+                vegaEmbed("#milano_map", "js/milano-map.vg.json", {
+                  renderer: "svg",
+                }).catch(console.error);
+                milanoReady = true;
+              }
+            });
+          });
+        </script>
+
+        <hr class="chart-divider" />
+        <p>
+          <span class="key-stat">91 nations</span> won medals in Paris.
+          Australia ranked
+          <strong>4th by total despite sitting 55th by population</strong>.
+          Hover any circle for the breakdown.
+        </p>
+        <div class="chart-wrap">
+          <div id="nations_bubble"></div>
+          <script>
+            vegaEmbed("#nations_bubble", "js/paris-nations-bubble.vg.json", {
+              renderer: "svg",
+            }).catch(console.error);
+          </script>
+        </div>
+      </div>
+
+      <!-- PULL STAT -->
+      <div class="card pull-stat">
+        <span class="pull-number">4<sup style="font-size: 0.5em">th</sup></span>
+        <span class="pull-caption"
+          >Australia's finish in Paris 2024 · from 26 million people</span
+        >
+      </div>
+
+      <!-- ── 2. PARIS 2024 MEDAL ENGINE ──────────────────────────────── -->
+      <div class="card ring-yellow">
+        <span class="section-label">Paris 2024 Medal Engine</span>
+        <h2>Where the 53 Medals Came From</h2>
+        <p class="section-sub">
+          Swimming leads, but the depth of the campaign is the real story.
+        </p>
+        <p>
+          <strong>Cycling Track</strong> was the surprise package with
+          <span class="key-stat">12 medal instances</span>, and
+          <strong>Jessica Fox</strong> claimed all three Canoe Slalom medals
+          solo. Australia is no longer a one-sport nation at the Summer Games.
+          Filter by medal type or click any bar to isolate a discipline.
+        </p>
+        <hr class="chart-divider" />
+        <div class="medal-filter-row">
+          <span class="medal-filter-label">Show medals</span>
+          <button class="medal-btn active" data-medal="All">All</button>
+          <button class="medal-btn gold" data-medal="Gold Medal">Gold</button>
+          <button class="medal-btn silver" data-medal="Silver Medal">
+            Silver
+          </button>
+          <button class="medal-btn bronze" data-medal="Bronze Medal">
+            Bronze
+          </button>
+        </div>
+        <div class="chart-wrap">
+          <div id="paris_disciplines"></div>
+          <script>
+            vegaEmbed("#paris_disciplines", "js/paris-disciplines.vg.json", {
+              renderer: "svg",
+            })
+              .then(function (r) {
+                chartReady("bar", r.view);
+              })
+              .catch(console.error);
+          </script>
+        </div>
+
+        <div class="grid-2">
+          <div class="grid-col">
+            <h3>How Was the Haul Distributed?</h3>
+            <p class="section-sub">
+              Swimming is nearly half the haul. Click a slice to highlight
+              across all three charts.
+            </p>
+            <div class="chart-wrap">
+              <div id="paris_discipline_donut"></div>
+              <script>
+                vegaEmbed(
+                  "#paris_discipline_donut",
+                  "js/paris-discipline-donut.vg.json",
+                  { renderer: "svg" },
+                )
+                  .then(function (r) {
+                    chartReady("donut", r.view);
+                  })
+                  .catch(console.error);
+              </script>
+            </div>
+          </div>
+
+          <div class="grid-col">
+            <h3>Every Medal Counts</h3>
+            <p class="section-sub">
+              53 squares, one per medal. Hover for athlete detail.
+            </p>
+            <div class="chart-wrap">
+              <div id="paris_waffle"></div>
+              <script>
+                vegaEmbed("#paris_waffle", "js/paris-waffle.vg.json", {
+                  renderer: "svg",
+                })
+                  .then(function (r) {
+                    chartReady("waffle", r.view);
+                    document
+                      .querySelectorAll(".medal-btn")
+                      .forEach(function (btn) {
+                        btn.addEventListener("click", function () {
+                          document
+                            .querySelectorAll(".medal-btn")
+                            .forEach(function (b) {
+                              b.classList.remove("active");
+                            });
+                          this.classList.add("active");
+                          var medal = this.dataset.medal;
+                          if (chartViews.bar)
+                            chartViews.bar.signal("medal_filter", medal).run();
+                          if (chartViews.waffle)
+                            chartViews.waffle
+                              .signal("medal_filter", medal)
+                              .run();
+                        });
+                      });
+                  })
+                  .catch(console.error);
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 3. MOMENTUM THROUGH THE GAMES ────────────────────────────── -->
+      <div class="card split flip ring-black">
+        <div class="split-text">
+          <span class="section-label">Momentum Through the Games</span>
+          <h2>How the Medal Race Built</h2>
+          <p class="section-sub">
+            <strong>Three golds on day one</strong>, then a steady climb to 53.
+          </p>
+          <p>
+            Swimming front-loaded the haul through week one, led by Ariarne
+            Titmus and Grace Brown. Cycling, Canoe, and Sailing medals arrived
+            in the final week, broadening a fast start into a top-four finish.
+            Hover any point for the running tally.
+          </p>
+        </div>
+        <div class="split-chart">
+          <div class="chart-wrap">
+            <div id="medal_race"></div>
+            <script>
+              vegaEmbed("#medal_race", "js/paris-medal-race.vg.json", {
+                renderer: "svg",
+              }).catch(console.error);
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 4. WHO WON THEM ──────────────────────────────────────────── -->
+      <div class="card ring-green">
+        <span class="section-label">Who Won Them · Athlete Profiles</span>
+        <h2>The Age of Champions</h2>
+        <p class="section-sub">
+          Teenage skateboarders to 40-something equestrians. Hover a dot, click
+          a row, or use the sliders to zoom.
+        </p>
+        <hr class="chart-divider" />
+        <div class="chart-wrap">
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-swatch swatch-density"></span>
+              Age density, darker means more athletes clustered at that age
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch swatch-gold"></span>Gold medal
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch swatch-silver"></span>Silver medal
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch swatch-bronze"></span>Bronze medal
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch swatch-median"></span>Median age
+            </span>
+          </div>
+          <div id="age_strip"></div>
+          <script>
+            vegaEmbed("#age_strip", "js/paris-age-strip.vg.json", {
+              renderer: "svg",
+            }).catch(console.error);
+          </script>
+        </div>
+        <div class="insight-box">
+          <strong>Skateboarding stands out as the youngest discipline</strong>,
+          with <strong>Arisa Trew</strong> among the youngest athletes at Paris
+          2024. In contrast, Equestrian and Sailing medal winners skew
+          significantly older. <strong>Christopher Burton</strong>'s Eventing
+          silver came in his <span class="key-stat">40s</span>, illustrating how
+          technical skills peak far later than explosive athletic disciplines.
+        </div>
+      </div>
+
+      <!-- ── 5. REPRESENTATION AT THE GAMES ──────────────────────────── -->
+      <div class="card ring-red">
+        <span class="section-label">Who Won Them · Representation</span>
+        <h2>Gender at the Olympics</h2>
+        <p class="section-sub">
+          Near-zero women's events in 1900 to near-parity by
+          <span class="key-stat">Tokyo 2020</span>.
+        </p>
+        <p>
+          Progress was slow for the first century, then accelerated sharply from
+          the <span class="key-stat">1984 Los Angeles Games</span>
+          onward as the IOC pushed for parity. Use the slider to explore
+          different eras.
+        </p>
+        <hr class="chart-divider" />
+        <div class="chart-wrap">
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Year range</span>
+              <span
+                ><strong id="sex_year_from_label">1896</strong> –
+                <strong id="sex_year_to_label">2020</strong></span
+              >
+            </div>
+            <div class="dual-range">
+              <input
+                type="range"
+                id="sex_year_from"
+                min="1896"
+                max="2020"
+                step="4"
+                value="1896"
+              />
+              <input
+                type="range"
+                id="sex_year_to"
+                min="1896"
+                max="2020"
+                step="4"
+                value="2020"
+              />
+            </div>
+          </div>
+          <div id="sex_chart"></div>
+          <script>
+            vegaEmbed("#sex_chart", "js/sex.vg.json", { renderer: "svg" })
+              .then(function (result) {
+                const view = result.view;
+                const fromSlider = document.getElementById("sex_year_from");
+                const toSlider = document.getElementById("sex_year_to");
+                const fromLabel = document.getElementById(
+                  "sex_year_from_label",
+                );
+                const toLabel = document.getElementById("sex_year_to_label");
+                fromSlider.addEventListener("input", function () {
+                  if (+this.value > +toSlider.value)
+                    this.value = toSlider.value;
+                  fromLabel.textContent = this.value;
+                  view.signal("year_from", +this.value).run();
+                });
+                toSlider.addEventListener("input", function () {
+                  if (+this.value < +fromSlider.value)
+                    this.value = fromSlider.value;
+                  toLabel.textContent = this.value;
+                  view.signal("year_to", +this.value).run();
+                });
+              })
+              .catch(console.error);
+          </script>
+        </div>
+
+        <hr class="chart-divider" />
+        <p class="section-sub">
+          Most disciplines lean female, but the gap varies widely.
+        </p>
+        <p>
+          Canoe Slalom and Skateboarding went
+          <span class="key-stat">entirely female</span> (Jessica Fox and Arisa
+          Trew), while Cycling Track skews heavily male. Swimming, the biggest
+          contributor, sits close to parity.
+        </p>
+        <div class="chart-wrap">
+          <div id="paris_gender_medals"></div>
+          <script>
+            vegaEmbed(
+              "#paris_gender_medals",
+              "js/paris-gender-medals.vg.json",
+              { renderer: "svg" },
+            ).catch(console.error);
+          </script>
+        </div>
+      </div>
+
+      <!-- ── 6. LONG-TERM OLYMPIC IDENTITY ───────────────────────────── -->
+      <div class="card ring-blue">
+        <span class="section-label">Long-Term Olympic Identity</span>
+        <h2>The Flow of Medals: How Disciplines Rose and Fell</h2>
+        <p class="section-sub">
+          Band width = medals that year. Hover to isolate a sport; drag the
+          strip below to focus on an era.
+        </p>
+        <p>
+          Swimming dwarfs every other discipline across nearly every era.
+          Cycling Track swells from <span class="key-stat">2000</span>
+          onward as velodrome investment paid off. The
+          <span class="key-stat">1980 Moscow boycott</span> and the
+          <span class="key-stat">2000 Sydney</span> surge are marked on the
+          chart.
+        </p>
+        <hr class="chart-divider" />
+        <div class="chart-wrap">
+          <div id="streamgraph"></div>
+          <script>
+            vegaEmbed("#streamgraph", "js/streamgraph.vg.json", {
+              renderer: "svg",
+            }).catch(console.error);
+          </script>
+        </div>
+        <div class="insight-box">
+          <strong>The 1976 to 1984 gap is striking.</strong> Australia boycotted
+          the 1980 Moscow Games, then faced the Soviet counter-boycott at Los
+          Angeles 1984, compressing two cycles of medal-winning opportunity. The
+          streamgraph makes this geopolitical dip visible at a glance.
+        </div>
+      </div>
+
+      <!-- ── 7. PARTICIPANTS vs MEDALLISTS ─────────────────────────── -->
+      <div class="card split ring-yellow">
+        <div class="split-text">
+          <span class="section-label">Long-Term Olympic Identity</span>
+          <h2>From Participants to Podiums</h2>
+          <p class="section-sub">
+            Every Summer Games since <span class="key-stat">1896</span>,
+            unbroken.
+          </p>
+          <p>
+            As the team size grew, the medal-winning rate held steady at
+            <span class="key-stat">20–30%</span>, suggesting the program scaled
+            without diluting quality. The blue line is total athletes; the gold
+            line is medal winners.
+          </p>
+          <div class="insight-box">
+            <strong>Sydney 2000 effect:</strong> Australia fielded its
+            largest-ever team at the home Games, and the medal-winning rate
+            matched historical averages; home advantage translated into genuine
+            performance gains.
+          </div>
+        </div>
+        <div class="split-chart">
+          <div class="chart-wrap">
+            <div id="participants_vs_medallists"></div>
+            <script>
+              vegaEmbed(
+                "#participants_vs_medallists",
+                "js/medals-vs-participants.vg.json",
+                { renderer: "svg" },
+              ).catch(console.error);
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <!-- PULL STAT -->
+      <div class="card pull-stat">
+        <span class="pull-number"
+          >120<sup style="font-size: 0.4em; vertical-align: super">+</sup></span
+        >
+        <span class="pull-caption"
+          >Years of unbroken Summer Olympic history</span
+        >
+      </div>
+
+      <!-- ── 8–9. META FOOTER ────────────────────────────────────────── -->
+      <div class="mag-footer">
+        <!-- ── 8. SUMMARY ──────────────────────────────────────────────── -->
+        <div class="card meta">
+          <span class="section-label">Conclusion</span>
+          <h2>Summary</h2>
+          <p class="section-sub">
+            Fourth in Paris, top-14 in Milano. A sporting nation whose success
+            spans generations, seasons, and disciplines.
+          </p>
+          <p>
+            <span class="key-stat">53 Summer medals</span> built on Swimming,
+            Cycling Track, and a deep bench across 13 sports. Six Winter medals
+            from just two disciplines, at a 67% gold-strike rate. Among
+            <span class="key-stat">91 medal-winning nations</span> in Paris,
+            only three finished above Australia.
+          </p>
+        </div>
+
+        <!-- ── 9. DATA SOURCES ─────────────────────────────────────────── -->
+        <div class="card meta">
+          <span class="section-label">References</span>
+          <h2>Data Sources</h2>
+          <p class="section-sub">
+            All datasets are publicly available and linked below.
+          </p>
+          <ul class="sources-list">
+            <li>
+              <a
+                href="https://www.kaggle.com/datasets/piterfm/milano-cortina-2026-olympic-winter-games"
+                target="_blank"
+                >Milano-Cortina 2026 Olympics Winter Games, Kaggle (piterfm)</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://www.kaggle.com/datasets/piterfm/paris-2024-olympic-summer-games"
+                target="_blank"
+                >Paris 2024 Olympic Summer Games, Kaggle (piterfm)</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/KeithGalli/Olympics-Dataset"
+                target="_blank"
+                >History of Olympics, GitHub (KeithGalli)</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/FIT3179/Vega-Lite" target="_blank"
+                >World Map TopoJSON, FIT3179 Vega-Lite Repository</a
+              >
+            </li>
+          </ul>
+        </div>
+        <!-- ── AI DECLARATION ─────────────────────────────────────────────── -->
+        <div class="card meta">
+          <span class="section-label">Transparency</span>
+          <h2>AI Declaration</h2>
+          <p class="section-sub">
+            Disclosure of artificial intelligence tools used in the production
+            of this visualisation.
+          </p>
+          <p>
+            This project was produced with the assistance of
+            <strong>Claude Sonnet 4.7 (Anthropic)</strong>, used to help develop
+            the page layout, CSS styling, and Vega-Lite chart specifications.
+            All data analysis, design decisions, written commentary, and final
+            editorial choices were made by the author.
+          </p>
+        </div>
+      </div>
+      <!-- end .mag-footer -->
+    </main>
+  </body>
+</html>

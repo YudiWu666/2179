@@ -1,0 +1,147 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Age Profile of Australia's Paris 2024 Medal Winners",
+    "subtitle": "Background shading = age density per discipline · dots = individual athletes · dark tick = median"
+  },
+  "width": "container",
+  "height": 460,
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "params": [
+    {
+      "name": "min_age",
+      "value": 14,
+      "bind": {"input": "range", "min": 14, "max": 50, "step": 1, "name": "Min age: "}
+    },
+    {
+      "name": "max_age",
+      "value": 50,
+      "bind": {"input": "range", "min": 14, "max": 50, "step": 1, "name": "Max age: "}
+    }
+  ],
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {"filter": "datum.birth_date != null && datum.birth_date != ''"},
+    {"calculate": "2024 - +slice(datum.birth_date, 0, 4)", "as": "age"},
+    {
+      "joinaggregate": [{"op": "median", "field": "age", "as": "median_age"}],
+      "groupby": ["discipline"]
+    },
+    {"filter": "datum.age >= min_age && datum.age <= max_age"}
+  ],
+  "layer": [
+    {
+      "transform": [
+        {
+          "bin": {"step": 3, "extent": [14, 56]},
+          "field": "age",
+          "as": ["age_b0", "age_b1"]
+        },
+        {
+          "aggregate": [{"op": "count", "as": "bin_count"}],
+          "groupby": ["discipline", "age_b0", "age_b1", "median_age"]
+        }
+      ],
+      "mark": {"type": "rect", "height": {"band": 0.72}},
+      "encoding": {
+        "x": {
+          "field": "age_b0",
+          "type": "quantitative",
+          "bin": "binned",
+          "scale": {"zero": false, "domainMin": 14},
+          "axis": null
+        },
+        "x2": {"field": "age_b1"},
+        "y": {
+          "field": "discipline",
+          "type": "nominal",
+          "title": null,
+          "sort": {"field": "median_age", "order": "ascending"},
+          "axis": {"labelFontSize": 12}
+        },
+        "color": {
+          "field": "bin_count",
+          "type": "quantitative",
+          "scale": {"range": ["#daeeff", "#005fa3"]},
+          "legend": null
+        }
+      }
+    },
+    {
+      "params": [
+        {"name": "disc_sel", "select": {"type": "point", "fields": ["discipline"]}}
+      ],
+      "mark": {"type": "point", "filled": true, "size": 72},
+      "encoding": {
+        "x": {
+          "field": "age",
+          "type": "quantitative",
+          "title": "Approximate Age at Paris 2024",
+          "scale": {"zero": false},
+          "axis": {"grid": true, "gridOpacity": 0.25}
+        },
+        "y": {
+          "field": "discipline",
+          "type": "nominal",
+          "title": null,
+          "sort": {"field": "median_age", "order": "ascending"},
+          "axis": {"labelFontSize": 12}
+        },
+        "color": {
+          "field": "medal_type",
+          "type": "nominal",
+          "title": "Medal",
+          "scale": {
+            "domain": ["Gold Medal", "Silver Medal", "Bronze Medal"],
+            "range": ["#FCB131", "#ABABAB", "#CD7F32"]
+          },
+          "legend": {"orient": "top", "direction": "horizontal", "labelFontSize": 12}
+        },
+        "opacity": {
+          "condition": {"param": "disc_sel", "value": 0.9},
+          "value": 0.1
+        },
+        "tooltip": [
+          {"field": "name", "type": "nominal", "title": "Athlete"},
+          {"field": "age", "type": "quantitative", "title": "Age"},
+          {"field": "discipline", "type": "nominal", "title": "Discipline"},
+          {"field": "medal_type", "type": "nominal", "title": "Medal"},
+          {"field": "event", "type": "nominal", "title": "Event"}
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "tick",
+        "thickness": 3,
+        "color": "#002868",
+        "width": 26,
+        "opacity": 0.9
+      },
+      "encoding": {
+        "x": {
+          "field": "age",
+          "type": "quantitative",
+          "aggregate": "median"
+        },
+        "y": {
+          "field": "discipline",
+          "type": "nominal",
+          "sort": {"field": "median_age", "order": "ascending"}
+        },
+        "tooltip": [
+          {"field": "discipline", "type": "nominal", "title": "Discipline"},
+          {
+            "field": "age",
+            "type": "quantitative",
+            "aggregate": "median",
+            "title": "Median Age",
+            "format": ".1f"
+          }
+        ]
+      }
+    }
+  ]
+}

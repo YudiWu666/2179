@@ -1,0 +1,79 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": ["Australia: Athletes vs Medal Winners", "Across Summer Olympic History"],
+    "anchor": "middle",
+    "fontSize": 22,
+    "lineHeight": 26,
+    "offset": 12
+  },
+  "width": "container",
+  "height": 280,
+  "padding": {"top": 18, "left": 5, "right": 8, "bottom": 5},
+  "data": {
+    "url": "https://raw.githubusercontent.com/KeithGalli/Olympics-Dataset/refs/heads/master/clean-data/results.csv"
+  },
+  "transform": [
+    {"filter": "datum.noc == 'AUS'"},
+    {"filter": "datum.type == 'Summer'"},
+    {"calculate": "datum.medal ? 1 : 0", "as": "is_medallist"},
+    {"calculate": "format(datum.year, '.0f')", "as": "year_str"},
+    {
+      "aggregate": [
+        {"op": "count", "as": "Athletes"},
+        {"op": "sum", "field": "is_medallist", "as": "Medallists"}
+      ],
+      "groupby": ["year_str"]
+    },
+    {"fold": ["Athletes", "Medallists"], "as": ["category", "count"]}
+  ],
+  "layer": [
+    {
+      "mark": {"type": "line", "point": {"filled": true, "size": 60}},
+      "encoding": {
+        "x": {
+          "field": "year_str",
+          "type": "ordinal",
+          "title": "Year",
+          "axis": {"labelAngle": -45}
+        },
+        "y": {
+          "field": "count",
+          "type": "quantitative",
+          "title": "Count",
+          "axis": {"grid": true}
+        },
+        "color": {
+          "field": "category",
+          "type": "nominal",
+          "title": null,
+          "scale": {
+            "domain": ["Athletes", "Medallists"],
+            "range": ["#0081C8", "#FCB131"]
+          },
+          "legend": {"orient": "top", "direction": "horizontal", "labelFontSize": 12}
+        },
+        "tooltip": [
+          {"field": "year_str", "type": "ordinal", "title": "Year"},
+          {"field": "category", "type": "nominal", "title": "Category"},
+          {"field": "count", "type": "quantitative", "title": "Count"}
+        ]
+      }
+    },
+    {
+      "data": {"values": [{"year_str": "2000"}]},
+      "mark": {"type": "rule", "color": "#888", "strokeDash": [5, 3], "strokeWidth": 1.5, "opacity": 0.6},
+      "encoding": {
+        "x": {"field": "year_str", "type": "ordinal"}
+      }
+    },
+    {
+      "data": {"values": [{"year_str": "2000", "note": "Sydney 2000: Home Games"}]},
+      "mark": {"type": "text", "align": "left", "dx": 6, "y": 12, "fontSize": 10, "color": "#555", "fontWeight": "bold", "baseline": "top"},
+      "encoding": {
+        "x": {"field": "year_str", "type": "ordinal"},
+        "text": {"field": "note"}
+      }
+    }
+  ]
+}

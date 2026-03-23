@@ -1,0 +1,90 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Gender Split by Discipline: Paris 2024",
+    "subtitle": "Each dot pair shows medal instances won by female vs male athletes · hover for detail"
+  },
+  "width": "container",
+  "height": 440,
+  "config": {"view": {"stroke": "transparent"}},
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {
+      "aggregate": [{"op": "count", "as": "count"}],
+      "groupby": ["discipline", "gender"]
+    },
+    {
+      "joinaggregate": [
+        {"op": "min", "field": "count", "as": "min_count"},
+        {"op": "max", "field": "count", "as": "max_count"},
+        {"op": "sum", "field": "count", "as": "total"}
+      ],
+      "groupby": ["discipline"]
+    }
+  ],
+  "layer": [
+    {
+      "transform": [{"filter": "datum.gender == 'Female'"}],
+      "mark": {"type": "rule", "color": "#d8d2c8", "strokeWidth": 2.5},
+      "encoding": {
+        "y": {
+          "field": "discipline",
+          "type": "nominal",
+          "sort": {"field": "total", "order": "descending"},
+          "title": null,
+          "axis": {"labelFontSize": 12}
+        },
+        "x": {
+          "field": "min_count",
+          "type": "quantitative",
+          "title": "Medal Instances",
+          "axis": {"grid": false}
+        },
+        "x2": {"field": "max_count"}
+      }
+    },
+    {
+      "mark": {"type": "point", "filled": true, "size": 140, "opacity": 1},
+      "encoding": {
+        "y": {
+          "field": "discipline",
+          "type": "nominal",
+          "sort": {"field": "total", "order": "descending"},
+          "title": null,
+          "axis": {"labelFontSize": 12}
+        },
+        "x": {
+          "field": "count",
+          "type": "quantitative",
+          "title": "Medal Instances",
+          "axis": {"grid": false}
+        },
+        "color": {
+          "field": "gender",
+          "type": "nominal",
+          "title": null,
+          "scale": {
+            "domain": ["Female", "Male"],
+            "range": ["#FCB131", "#0081C8"]
+          },
+          "legend": {
+            "orient": "top",
+            "direction": "horizontal",
+            "labelFontSize": 12,
+            "symbolType": "circle",
+            "symbolSize": 120
+          }
+        },
+        "tooltip": [
+          {"field": "discipline", "type": "nominal", "title": "Discipline"},
+          {"field": "gender", "type": "nominal", "title": "Gender"},
+          {"field": "count", "type": "quantitative", "title": "Medal Instances"},
+          {"field": "total", "type": "quantitative", "title": "Total (discipline)"}
+        ]
+      }
+    }
+  ]
+}

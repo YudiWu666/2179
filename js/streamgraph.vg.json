@@ -1,0 +1,154 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Australia's Discipline Medal Streams: Summer Olympics",
+    "subtitle": "Wider bands = more medals that year · hover a stream to highlight · drag the strip below to focus an era",
+    "anchor": "middle",
+    "subtitleAlign": "center"
+  },
+  "data": {
+    "url": "https://raw.githubusercontent.com/KeithGalli/Olympics-Dataset/refs/heads/master/clean-data/results.csv"
+  },
+  "transform": [
+    {"filter": "datum.noc == 'AUS'"},
+    {"filter": "datum.type == 'Summer'"},
+    {"filter": "datum.medal"},
+    {"calculate": "toNumber(datum.year)", "as": "year"},
+    {
+      "aggregate": [{"op": "count", "as": "medal_count"}],
+      "groupby": ["year", "discipline"]
+    },
+    {
+      "joinaggregate": [{"op": "sum", "field": "medal_count", "as": "total_medals"}],
+      "groupby": ["discipline"]
+    },
+    {
+      "window": [{"op": "dense_rank", "as": "disc_rank"}],
+      "sort": [{"field": "total_medals", "order": "descending"}]
+    },
+    {"filter": "datum.disc_rank <= 8"},
+    {
+      "impute": "medal_count",
+      "key": "year",
+      "value": 0,
+      "groupby": ["discipline"]
+    }
+  ],
+  "vconcat": [
+    {
+      "width": "container",
+      "height": 360,
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "quantitative",
+          "title": null,
+          "scale": {"domain": {"param": "brush"}},
+          "axis": {"format": "d", "grid": false, "labelFontSize": 11, "domainColor": "#ccc"}
+        }
+      },
+      "layer": [
+        {
+          "params": [
+            {
+              "name": "hover",
+              "select": {
+                "type": "point",
+                "on": "mouseover",
+                "fields": ["discipline"],
+                "clear": "mouseout"
+              }
+            }
+          ],
+          "mark": {
+            "type": "area",
+            "interpolate": "monotone",
+            "line": {"strokeWidth": 0.8, "opacity": 0.6}
+          },
+          "encoding": {
+            "y": {
+              "field": "medal_count",
+              "type": "quantitative",
+              "stack": "center",
+              "axis": null
+            },
+            "color": {
+              "field": "discipline",
+              "type": "nominal",
+              "title": null,
+              "scale": {"range": ["#0081C8", "#FCB131", "#9B59B6", "#00BCD4", "#E67E22", "#EC407A", "#ABABAB", "#3D5A80"]},
+              "legend": {
+                "orient": "right",
+                "labelFontSize": 11,
+                "direction": "vertical",
+                "symbolSize": 120
+              }
+            },
+            "opacity": {
+              "condition": {"param": "hover", "value": 0.92},
+              "value": 0.18
+            },
+            "tooltip": [
+              {"field": "year", "type": "quantitative", "title": "Year", "format": "d"},
+              {"field": "discipline", "type": "nominal", "title": "Discipline"},
+              {"field": "medal_count", "type": "quantitative", "title": "Medals that year"},
+              {"field": "total_medals", "type": "quantitative", "title": "All-time total"}
+            ]
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {"year": 1980, "note": "Moscow boycott"},
+              {"year": 2000, "note": "Sydney home Games"}
+            ]
+          },
+          "mark": {"type": "rule", "color": "#001233", "strokeDash": [4, 3], "opacity": 0.45}
+        },
+        {
+          "data": {
+            "values": [
+              {"year": 1980, "note": "Moscow boycott"},
+              {"year": 2000, "note": "Sydney home Games"}
+            ]
+          },
+          "mark": {
+            "type": "text",
+            "align": "center",
+            "baseline": "top",
+            "dy": 4,
+            "fontSize": 10,
+            "fontWeight": 600,
+            "fill": "#001233"
+          },
+          "encoding": {
+            "y": {"value": 0},
+            "text": {"field": "note", "type": "nominal"}
+          }
+        }
+      ]
+    },
+    {
+      "width": "container",
+      "height": 56,
+      "mark": {"type": "area", "interpolate": "monotone", "color": "#9aa7b8", "line": {"color": "#6b7a8f"}},
+      "params": [
+        {"name": "brush", "select": {"type": "interval", "encodings": ["x"]}}
+      ],
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "quantitative",
+          "title": "Drag here to focus a period",
+          "axis": {"format": "d", "grid": false, "labelFontSize": 11, "domainColor": "#ccc"}
+        },
+        "y": {
+          "aggregate": "sum",
+          "field": "medal_count",
+          "title": null,
+          "axis": null
+        }
+      }
+    }
+  ]
+}

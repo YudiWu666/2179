@@ -1,0 +1,106 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Australia's Paris 2024 Medals by Discipline",
+    "subtitle": "Click a bar to highlight · hover for detail"
+  },
+  "width": "container",
+  "height": 460,
+  "data": {
+    "url": "https://raw.githubusercontent.com/YudiWu666/2179/refs/heads/main/data/paris-2024/medallists.csv"
+  },
+  "params": [
+    {"name": "medal_filter", "value": "All"},
+    {"name": "external_disc", "value": null}
+  ],
+  "transform": [
+    {"filter": "datum.country == 'Australia'"},
+    {"filter": "medal_filter == 'All' || datum.medal_type == medal_filter"},
+    {
+      "aggregate": [{"op": "count", "as": "count"}],
+      "groupby": ["discipline", "medal_type"]
+    },
+    {
+      "joinaggregate": [{"op": "sum", "field": "count", "as": "total"}],
+      "groupby": ["discipline"]
+    },
+    {
+      "calculate": "datum.medal_type == 'Gold Medal' ? 0 : datum.medal_type == 'Silver Medal' ? 1 : 2",
+      "as": "medal_order"
+    },
+    {
+      "calculate": "datum.discipline == 'Swimming' ? 'Swimming' : datum.discipline == 'Cycling Track' ? 'Cycling Track' : datum.discipline == 'Water Polo' ? 'Water Polo' : datum.discipline == 'Basketball' ? 'Basketball' : datum.discipline == 'Athletics' ? 'Athletics' : datum.discipline == 'Canoe Sprint' ? 'Canoe Sprint' : 'Other'",
+      "as": "disc_group"
+    }
+  ],
+  "layer": [
+  {
+  "params": [
+    {
+      "name": "discipline_sel",
+      "select": {"type": "point", "fields": ["discipline"]}
+    }
+  ],
+  "mark": {"type": "bar", "cursor": "pointer"},
+  "encoding": {
+    "y": {
+      "field": "discipline",
+      "type": "nominal",
+      "sort": {"field": "total", "order": "descending"},
+      "title": null,
+      "axis": {"labelFontSize": 12}
+    },
+    "x": {
+      "field": "count",
+      "type": "quantitative",
+      "title": "Medal Count (includes individual team members)",
+      "stack": "zero",
+      "axis": {"grid": false}
+    },
+    "color": {
+      "field": "medal_type",
+      "type": "nominal",
+      "title": null,
+      "scale": {
+        "domain": ["Gold Medal", "Silver Medal", "Bronze Medal"],
+        "range": ["#FCB131", "#ABABAB", "#CD7F32"]
+      },
+      "legend": {"orient": "top", "direction": "horizontal", "labelFontSize": 12}
+    },
+    "order": {"field": "medal_order", "type": "quantitative"},
+    "opacity": {
+      "condition": [
+        {
+          "test": "external_disc !== null && datum.disc_group !== external_disc",
+          "value": 0.08
+        },
+        {
+          "param": "discipline_sel",
+          "value": 1
+        }
+      ],
+      "value": 0.25
+    },
+    "tooltip": [
+      {"field": "discipline", "type": "nominal", "title": "Discipline"},
+      {"field": "medal_type", "type": "nominal", "title": "Medal Type"},
+      {"field": "count", "type": "quantitative", "title": "Count"},
+      {"field": "total", "type": "quantitative", "title": "Total Medals"}
+    ]
+  }
+  },
+  {
+    "transform": [{"aggregate": [{"op": "max", "field": "total", "as": "disc_total"}], "groupby": ["discipline"]}],
+    "mark": {"type": "text", "align": "left", "dx": 4, "fontSize": 11, "color": "#666", "fontWeight": "600"},
+    "encoding": {
+      "y": {
+        "field": "discipline",
+        "type": "nominal",
+        "sort": {"field": "disc_total", "order": "descending"}
+      },
+      "x": {"field": "disc_total", "type": "quantitative"},
+      "text": {"field": "disc_total", "type": "quantitative"}
+    }
+  }
+  ]
+}
