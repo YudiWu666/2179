@@ -48,11 +48,36 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 38%, transparent 0 6.9rem, rgba(0, 129, 200, 0.045) 7rem 7.18rem, transparent 7.28rem),
-    radial-gradient(circle at 29% 43%, transparent 0 6.9rem, rgba(252, 177, 49, 0.045) 7rem 7.18rem, transparent 7.28rem),
-    radial-gradient(circle at 40% 43%, transparent 0 6.9rem, rgba(0, 166, 81, 0.04) 7rem 7.18rem, transparent 7.28rem),
-    radial-gradient(circle at 23.5% 32%, transparent 0 6.9rem, rgba(45, 45, 45, 0.03) 7rem 7.18rem, transparent 7.28rem),
-    radial-gradient(circle at 34.5% 32%, transparent 0 6.9rem, rgba(238, 51, 78, 0.04) 7rem 7.18rem, transparent 7.28rem);
+    radial-gradient(
+      circle at 18% 38%,
+      transparent 0 6.9rem,
+      rgba(0, 129, 200, 0.045) 7rem 7.18rem,
+      transparent 7.28rem
+    ),
+    radial-gradient(
+      circle at 29% 43%,
+      transparent 0 6.9rem,
+      rgba(252, 177, 49, 0.045) 7rem 7.18rem,
+      transparent 7.28rem
+    ),
+    radial-gradient(
+      circle at 40% 43%,
+      transparent 0 6.9rem,
+      rgba(0, 166, 81, 0.04) 7rem 7.18rem,
+      transparent 7.28rem
+    ),
+    radial-gradient(
+      circle at 23.5% 32%,
+      transparent 0 6.9rem,
+      rgba(45, 45, 45, 0.03) 7rem 7.18rem,
+      transparent 7.28rem
+    ),
+    radial-gradient(
+      circle at 34.5% 32%,
+      transparent 0 6.9rem,
+      rgba(238, 51, 78, 0.04) 7rem 7.18rem,
+      transparent 7.28rem
+    );
   opacity: 0.68;
 }
 
@@ -74,7 +99,11 @@ body::before {
   min-height: 520px;
   padding: clamp(46px, 7vw, 92px) clamp(18px, 6vw, 84px) clamp(42px, 6vw, 74px);
   background:
-    linear-gradient(120deg, rgba(246, 242, 234, 0.96) 0 58%, rgba(232, 235, 228, 0.86) 58%),
+    linear-gradient(
+      120deg,
+      rgba(246, 242, 234, 0.96) 0 58%,
+      rgba(232, 235, 228, 0.86) 58%
+    ),
     var(--paper);
   border-bottom: 1px solid var(--line);
 }
@@ -103,7 +132,14 @@ body::before {
   right: clamp(18px, 6vw, 84px);
   bottom: 0;
   height: 5px;
-  background: linear-gradient(90deg, var(--blue) 0 20%, var(--yellow) 20% 40%, var(--black) 40% 60%, var(--green) 60% 80%, var(--red) 80% 100%);
+  background: linear-gradient(
+    90deg,
+    var(--blue) 0 20%,
+    var(--yellow) 20% 40%,
+    var(--black) 40% 60%,
+    var(--green) 60% 80%,
+    var(--red) 80% 100%
+  );
 }
 
 .hero-copy,
@@ -268,7 +304,14 @@ h1 {
   width: 124px;
   height: 4px;
   margin-top: clamp(22px, 3vw, 34px);
-  background: linear-gradient(90deg, var(--blue) 0 20%, var(--yellow) 20% 40%, var(--black) 40% 60%, var(--green) 60% 80%, var(--red) 80% 100%);
+  background: linear-gradient(
+    90deg,
+    var(--blue) 0 20%,
+    var(--yellow) 20% 40%,
+    var(--black) 40% 60%,
+    var(--green) 60% 80%,
+    var(--red) 80% 100%
+  );
 }
 
 .card::before {
@@ -300,11 +343,26 @@ h1 {
   content: none;
 }
 
-.ring-blue { --accent: var(--blue); --accent-soft: var(--blue-soft); }
-.ring-yellow { --accent: var(--yellow); --accent-soft: var(--gold-soft); }
-.ring-black { --accent: var(--black); --accent-soft: #f0efea; }
-.ring-green { --accent: var(--green); --accent-soft: var(--green-soft); }
-.ring-red { --accent: var(--red); --accent-soft: var(--red-soft); }
+.ring-blue {
+  --accent: var(--blue);
+  --accent-soft: var(--blue-soft);
+}
+.ring-yellow {
+  --accent: var(--yellow);
+  --accent-soft: var(--gold-soft);
+}
+.ring-black {
+  --accent: var(--black);
+  --accent-soft: #f0efea;
+}
+.ring-green {
+  --accent: var(--green);
+  --accent-soft: var(--green-soft);
+}
+.ring-red {
+  --accent: var(--red);
+  --accent-soft: var(--red-soft);
+}
 
 .ring-blue::before,
 .ring-yellow::before,
@@ -354,7 +412,7 @@ p,
 p {
   margin: 0 0 10px;
   color: var(--text);
-  font-size: 15.5px;
+  font-size: 18px;
   line-height: 1.72;
 }
 
@@ -566,7 +624,10 @@ p:last-child {
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .toggle-btn.active,
@@ -907,5 +968,4 @@ p:last-child {
   .legend-item {
     white-space: normal;
   }
-
 }
